@@ -1,1 +1,3 @@
-mango_db/csv
+mongo_db/mangodb_env
+mongo_db/csv
+mongo_db/app/__pycache__
