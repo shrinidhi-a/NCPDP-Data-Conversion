@@ -52,5 +52,5 @@ def csv_to_json_nested(csv_dir, json_filepath, limit=50):
 
 # Example usage
 csv_dir = 'csv'
-json_filepath = 'sampleOutput.json'
+json_filepath = 'output/sample.json'
 csv_to_json_nested(csv_dir, json_filepath)

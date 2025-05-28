@@ -1,3 +1,7 @@
 mongo_db/mangodb_env
 mongo_db/csv
-mongo_db/app/__pycache__
+mongo_db/app/_*
+mongo_db/app/Database/_*
+mongo_db/app/router/_*
+mongo_db/app/schemas/_*
+mongo_db/output
