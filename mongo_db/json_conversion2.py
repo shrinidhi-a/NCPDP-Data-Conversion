@@ -3,13 +3,7 @@ import json
 import os
 
 def csv_to_flat_json(csv_dir, json_filepath, limit=50):
-    files = [
-        'patients.csv', 'careplans.csv', 'providers.csv', 'allergies.csv',
-        'procedures.csv', 'observations.csv', 'medications.csv', 'payers.csv',
-        'supplies.csv', 'conditions.csv', 'devices.csv', 'encounters.csv',
-        'imaging_studies.csv', 'immunizations.csv', 'organizations.csv',
-        'payer_transitions.csv'
-    ]
+    files = ['MTMData.csv']
 
     flat_data = []
 
