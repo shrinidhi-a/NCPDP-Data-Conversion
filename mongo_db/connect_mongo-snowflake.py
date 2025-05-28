@@ -1,4 +1,3 @@
-#Connect MongoDb and snowflake to load the data
 import pandas as pd
 from pymongo import MongoClient
 import snowflake.connector
@@ -6,8 +5,8 @@ import snowflake.connector
 try:
     # Step 1: Connect to MongoDB
     mongo_client = MongoClient("mongodb://localhost:27017")  # Update if using Atlas
-    db = mongo_client["healthcare"] 
-    collection = db["patients_data"]
+    db = mongo_client["healthcare"]
+    collection = db["sampleData"]
 
     # Step 2: Load data from MongoDB
     documents = list(collection.find())
@@ -21,14 +20,56 @@ try:
     if '_id' in df.columns:
         df = df.drop(columns=['_id'])
 
-    # Step 5: Convert datetime and nested dict/list columns to string
+    # Expected columns in uppercase with underscores
+    expected_columns = [
+        "RECORD_TYPE", "TRANSACTION_ID", "DATE", "PHARMACY_NCPDP_ID", "PHARMACIST_NPI",
+        "PATIENT_ID", "PATIENT_NAME", "DOB", "GENDER", "PAYER_ID", "PLAN_NAME",
+        "INTERVENTION_TYPE", "MTM_SERVICE_CODE", "START_DATE", "END_DATE", "OUTCOME",
+        "RECOMMENDATIONS", "PRESCRIBER_CONTACTED", "PRESCRIBER_NPI", "PRESCRIBER_RESPONSE",
+        "FOLLOW_UP_DATE", "NOTES"
+    ]
+
+    # Rename columns
+    rename_map = {
+        "Record Type": "RECORD_TYPE",
+        "Transaction ID": "TRANSACTION_ID",
+        "Date": "DATE",
+        "Pharmacy NCPDP ID": "PHARMACY_NCPDP_ID",
+        "Pharmacist NPI": "PHARMACIST_NPI",
+        "Patient ID": "PATIENT_ID",
+        "Patient Name": "PATIENT_NAME",
+        "DOB": "DOB",
+        "Gender": "GENDER",
+        "Payer ID": "PAYER_ID",
+        "Plan Name": "PLAN_NAME",
+        "Intervention Type": "INTERVENTION_TYPE",
+        "MTM Service Code": "MTM_SERVICE_CODE",
+        "Start Date": "START_DATE",
+        "End Date": "END_DATE",
+        "Outcome": "OUTCOME",
+        "Recommendations": "RECOMMENDATIONS",
+        "Prescriber Contacted": "PRESCRIBER_CONTACTED",
+        "Prescriber NPI": "PRESCRIBER_NPI",
+        "Prescriber Response": "PRESCRIBER_RESPONSE",
+        "Follow-up Date": "FOLLOW_UP_DATE",
+        "Notes": "NOTES"
+    }
+    df.rename(columns=rename_map, inplace=True)
+
+    # Filter dataframe to keep only expected columns present in df
+    df = df[[col for col in expected_columns if col in df.columns]]
+
+    # Convert datetime columns to string
     for col in df.columns:
         if pd.api.types.is_datetime64_any_dtype(df[col]):
             df[col] = df[col].astype(str)
 
-    df = df.applymap(lambda x: str(x) if isinstance(x, (dict, list)) else x)
+    # Convert dict/list columns to string without deprecated applymap
+    for col in df.columns:
+        if df[col].apply(lambda x: isinstance(x, (dict, list))).any():
+            df[col] = df[col].apply(lambda x: str(x) if isinstance(x, (dict, list)) else x)
 
-    # Step 6: Connect to Snowflake
+    # Step 7: Connect to Snowflake
     conn = snowflake.connector.connect(
         user='Fizan',
         password='Tietoevry12345',
@@ -40,15 +81,18 @@ try:
     )
     cursor = conn.cursor()
 
-    # Step 7: Prepare Insert Query
-    table_name = 'MTM_RECORDS'
+    # Step 8: Prepare Insert Query with quoted column names
+    table_name = 'MTMFormattedData'
     columns = list(df.columns)
+    quoted_columns = ', '.join([f'"{col}"' for col in columns])
+    placeholders = ', '.join(['%s'] * len(columns))
+
     insert_query = f"""
-        INSERT INTO {table_name} ({', '.join(columns)})
-        VALUES ({', '.join(['%s'] * len(columns))})
+        INSERT INTO {table_name} ({quoted_columns})
+        VALUES ({placeholders})
     """
 
-    # Step 8: Insert Data
+    # Step 9: Insert data row by row
     for _, row in df.iterrows():
         values = tuple(row.fillna("").values.tolist())
         cursor.execute(insert_query, values)
