@@ -1,10 +1,15 @@
 import pandas as pd
 from pymongo import MongoClient
 import snowflake.connector
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 try:
     # Step 1: Connect to MongoDB
-    mongo_client = MongoClient("mongodb://localhost:27017")  # Update if using Atlas
+    mongo_url = os.environ.get('MONGO_URL', "mongodb://localhost:27017") #Get MongoDB URL from environment or default to localhost
+    mongo_client = MongoClient(mongo_url)
     db = mongo_client["healthcare"]
     collection = db["sampleData"]
 
@@ -71,13 +76,13 @@ try:
 
     # Step 7: Connect to Snowflake
     conn = snowflake.connector.connect(
-        user='Fizan',
-        password='Tietoevry12345',
-        account='bu51577.central-india.azure',
-        warehouse='SNOWFLAKE_LEARNING_WH',
-        database='SNOWFLAKE_LEARNING_DB',
-        schema='MTM_ANALYTICS',
-        role='ACCOUNTADMIN'
+    user=os.environ.get('SNOWFLAKE_USER'),
+    password=os.environ.get('SNOWFLAKE_PASSWORD'),
+    account=os.environ.get('SNOWFLAKE_ACCOUNT'),
+    warehouse=os.environ.get('SNOWFLAKE_WAREHOUSE'),
+    database=os.environ.get('SNOWFLAKE_DATABASE'),
+    schema=os.environ.get('SNOWFLAKE_SCHEMA'),
+    role=os.environ.get('SNOWFLAKE_ROLE')
     )
     cursor = conn.cursor()
 

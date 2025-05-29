@@ -5,3 +5,4 @@ mongo_db/app/Database/_*
 mongo_db/app/router/_*
 mongo_db/app/schemas/_*
 mongo_db/output
+mongo_db/.env

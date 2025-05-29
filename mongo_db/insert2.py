@@ -1,8 +1,13 @@
 import json
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Connect to MongoDB
-client = MongoClient("mongodb://localhost:27017/")
+mongo_url = os.environ.get('MONGO_URL', "mongodb://localhost:27017") #Get MongoDB URL from environment or default to localhost
+client = MongoClient(mongo_url)
 db = client["healthcare"]
 collection = db["sampleData"]
 
