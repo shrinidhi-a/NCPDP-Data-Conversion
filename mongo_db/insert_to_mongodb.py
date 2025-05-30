@@ -1,13 +1,18 @@
 import json
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
-# Step 1: Connect to MongoDB (change URI if using Atlas)
-client = MongoClient("mongodb://localhost:27017/")
+load_dotenv()
+
+# Step 1: Connect to MongoDB
+mongo_url = os.environ.get('MONGO_URL', "mongodb://localhost:27017") #Get MongoDB URL from environment or default to localhost
+client = MongoClient(mongo_url)
 db = client["healthcare"]  
 collection = db["patients_data"]  
 
 # Step 2: Load the JSON file you created
-json_filepath = 'sampleOutput.json'
+json_filepath = 'output/sample.json'
 
 try:
     with open(json_filepath, 'r', encoding='utf-8') as f:
