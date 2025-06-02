@@ -6,3 +6,14 @@ mongo_db/app/router/_*
 mongo_db/app/schemas/_*
 mongo_db/output
 mongo_db/.env
+mangodb_env
+.env
+Backend/mongo_env
+Backend/csv
+Backend/app/_*
+Backend/app/schemas/_*
+Backend/app/models/_*
+Backend/app/services/_*
+Backend/app/core/_*
+Backend/app/api/_*
+Backend/output
