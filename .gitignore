@@ -1,4 +1,5 @@
 mongo_db/mangodb_env
+mongo_db/ncpdp_env
 mongo_db/csv
 mongo_db/app/_*
 mongo_db/app/Database/_*
