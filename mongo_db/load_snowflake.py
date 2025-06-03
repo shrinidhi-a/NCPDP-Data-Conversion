@@ -1,17 +1,21 @@
 #Script to connect python and Snowflake
 import snowflake.connector
 import pandas as pd
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 try:
     # Connect to Snowflake
     conn = snowflake.connector.connect(
-        user='Fizan',
-        password='Tietoevry12345',
-        account='bu51577.central-india.azure',
-        warehouse='SNOWFLAKE_LEARNING_WH',
-        database='SNOWFLAKE_LEARNING_DB',
-        schema='MTM_ANALYTICS',
-        role='ACCOUNTADMIN'
+    user=os.environ.get('SNOWFLAKE_USER'),
+    password=os.environ.get('SNOWFLAKE_PASSWORD'),
+    account=os.environ.get('SNOWFLAKE_ACCOUNT'),
+    warehouse=os.environ.get('SNOWFLAKE_WAREHOUSE'),
+    database=os.environ.get('SNOWFLAKE_DATABASE'),
+    schema=os.environ.get('SNOWFLAKE_SCHEMA'),
+    role=os.environ.get('SNOWFLAKE_ROLE')
     )
     cursor = conn.cursor()
 

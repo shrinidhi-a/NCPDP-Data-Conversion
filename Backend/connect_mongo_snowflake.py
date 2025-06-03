@@ -4,14 +4,15 @@ import snowflake.connector
 from dotenv import load_dotenv
 import os
 
+# Load environment variables
 load_dotenv()
 
 try:
     # Step 1: Connect to MongoDB
-    mongo_url = os.environ.get('MONGO_URL', "mongodb://localhost:27017") #Get MongoDB URL from environment or default to localhost
+    mongo_url = os.environ.get('MONGO_URL', "mongodb://localhost:27017")
     mongo_client = MongoClient(mongo_url)
     db = mongo_client["healthcare"]
-    collection = db["sampleData"]
+    collection = db["Dataset1"]
 
     # Step 2: Load data from MongoDB
     documents = list(collection.find())
@@ -23,9 +24,9 @@ try:
 
     # Step 4: Drop MongoDB internal _id field
     if '_id' in df.columns:
-        df = df.drop(columns=['_id'])
+        df.drop(columns=['_id'], inplace=True)
 
-    # Expected columns in uppercase with underscores
+    # Step 5: Define the expected Snowflake columns
     expected_columns = [
         "RECORD_TYPE", "TRANSACTION_ID", "DATE", "PHARMACY_NCPDP_ID", "PHARMACIST_NPI",
         "PATIENT_ID", "PATIENT_NAME", "DOB", "GENDER", "PAYER_ID", "PLAN_NAME",
@@ -34,7 +35,7 @@ try:
         "FOLLOW_UP_DATE", "NOTES"
     ]
 
-    # Rename columns
+    # Step 6: Rename columns to match expected format
     rename_map = {
         "Record Type": "RECORD_TYPE",
         "Transaction ID": "TRANSACTION_ID",
@@ -61,33 +62,30 @@ try:
     }
     df.rename(columns=rename_map, inplace=True)
 
-    # Filter dataframe to keep only expected columns present in df
+    # Step 7: Keep only expected columns
     df = df[[col for col in expected_columns if col in df.columns]]
 
-    # Convert datetime columns to string
+    # Step 8: Clean data (convert datetimes and lists/dicts to string)
     for col in df.columns:
         if pd.api.types.is_datetime64_any_dtype(df[col]):
             df[col] = df[col].astype(str)
-
-    # Convert dict/list columns to string without deprecated applymap
-    for col in df.columns:
-        if df[col].apply(lambda x: isinstance(x, (dict, list))).any():
+        elif df[col].apply(lambda x: isinstance(x, (dict, list))).any():
             df[col] = df[col].apply(lambda x: str(x) if isinstance(x, (dict, list)) else x)
 
-    # Step 7: Connect to Snowflake
+    # Step 9: Connect to Snowflake
     conn = snowflake.connector.connect(
-    user=os.environ.get('SNOWFLAKE_USER'),
-    password=os.environ.get('SNOWFLAKE_PASSWORD'),
-    account=os.environ.get('SNOWFLAKE_ACCOUNT'),
-    warehouse=os.environ.get('SNOWFLAKE_WAREHOUSE'),
-    database=os.environ.get('SNOWFLAKE_DATABASE'),
-    schema=os.environ.get('SNOWFLAKE_SCHEMA'),
-    role=os.environ.get('SNOWFLAKE_ROLE')
+        user=os.environ.get('SNOWFLAKE_USER'),
+        password=os.environ.get('SNOWFLAKE_PASSWORD'),
+        account=os.environ.get('SNOWFLAKE_ACCOUNT'),
+        warehouse=os.environ.get('SNOWFLAKE_WAREHOUSE'),
+        database=os.environ.get('SNOWFLAKE_DATABASE'),
+        schema=os.environ.get('SNOWFLAKE_SCHEMA'),
+        role=os.environ.get('SNOWFLAKE_ROLE')
     )
     cursor = conn.cursor()
 
-    # Step 8: Prepare Insert Query with quoted column names
-    table_name = 'MTMFormattedData'
+    # Step 10: Prepare insert query
+    table_name = 'newDataset'
     columns = list(df.columns)
     quoted_columns = ', '.join([f'"{col}"' for col in columns])
     placeholders = ', '.join(['%s'] * len(columns))
@@ -97,7 +95,7 @@ try:
         VALUES ({placeholders})
     """
 
-    # Step 9: Insert data row by row
+    # Step 11: Insert data
     for _, row in df.iterrows():
         values = tuple(row.fillna("").values.tolist())
         cursor.execute(insert_query, values)
