@@ -29,7 +29,7 @@ try:
     # Step 5: Define the expected Snowflake columns
     expected_columns = [
         "RECORD_TYPE", "TRANSACTION_ID", "DATE", "PHARMACY_NCPDP_ID", "PHARMACIST_NPI",
-        "PATIENT_ID", "PATIENT_NAME", "DOB", "GENDER", "PAYER_ID", "PLAN_NAME",
+        "PATIENT_ID", "PATIENT_NAME", "FIRST_NAME","LAST_NAME", "DOB", "GENDER", "PAYER_ID", "PLAN_NAME",
         "INTERVENTION_TYPE", "MTM_SERVICE_CODE", "START_DATE", "END_DATE", "OUTCOME",
         "RECOMMENDATIONS", "PRESCRIBER_CONTACTED", "PRESCRIBER_NPI", "PRESCRIBER_RESPONSE",
         "FOLLOW_UP_DATE", "NOTES"
@@ -44,6 +44,8 @@ try:
         "Pharmacist NPI": "PHARMACIST_NPI",
         "Patient ID": "PATIENT_ID",
         "Patient Name": "PATIENT_NAME",
+        "First Name": "FIRST_NAME",
+        "Last Name": "LAST_NAME",
         "DOB": "DOB",
         "Gender": "GENDER",
         "Payer ID": "PAYER_ID",

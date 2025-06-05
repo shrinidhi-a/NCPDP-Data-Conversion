@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import date
 
 class MTMRecord(BaseModel):
     RECORD_TYPE: str
@@ -8,6 +9,8 @@ class MTMRecord(BaseModel):
     PHARMACIST_NPI: str
     PATIENT_ID: str
     PATIENT_NAME: str
+    FIRST_NAME: str
+    LAST_NAME: str
     DOB: str
     GENDER: str
     PAYER_ID: str
@@ -23,3 +26,7 @@ class MTMRecord(BaseModel):
     PRESCRIBER_RESPONSE: str
     FOLLOW_UP_DATE: str
     NOTES: str
+
+    model_config = {
+        "from_attributes": True  # This enables from_orm()
+    }

@@ -14,6 +14,8 @@ class MTMRecordORM(Base):
     PHARMACIST_NPI = Column(String)
     PATIENT_ID = Column(String)
     PATIENT_NAME = Column(String)
+    FIRST_NAME = Column(String)
+    LAST_NAME = Column(String)
     DOB = Column(String)
     GENDER = Column(String)
     PAYER_ID = Column(String)
